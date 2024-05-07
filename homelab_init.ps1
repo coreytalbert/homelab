@@ -1,40 +1,52 @@
 $vm_names = @("web0", "zab0", "db0", "hq0")
+$startup_memory = 2GB
+$minimum_memory = 256MB
+$maximum_memory = 8GB
+$CPU_count = 2
 
 $image_path = "..."
 
+# https://learn.microsoft.com/en-us/windows-server/virtualization/hyper-v/get-started/create-a-virtual-switch-for-hyper-v-virtual-machines?tabs=powershell
 $switch_params = @{
-    Name = "switch0"
+    Name           = "switch0"
+    NetAdapterName = $(Get-NetAdapter | Where-Object Name -Like "*Wi-Fi*")
 }
 
-New-VMSwitch @switch_params
+New-VMSwitch @switch_params | Tee-Object -FilePath "./homelab_init.log"
 
-foreach ($vm_name in $vm_names) {
-    $vhd_params = @{
-        Path = "C:\Virtual Machines\$vm_name\$vm_name.vhdx"
-    }
-
-    New-VHD @vhd_params
-
+ForEach ($vm_name in $vm_names) {
+    # https://learn.microsoft.com/en-us/windows-server/virtualization/hyper-v/best-practices-for-running-linux-on-hyper-v
+    
     $vm_params = @{
-        Name = $vm_name
-        MemoryStartupBytes = 4096  
-        Generation = 2
-        VHDPath = $vhd_params['Path']
-        BootDevice = "VHD"
-        Path = "C:\Virtual Machines\$vm_name"
-        SwitchName = $switch_params['Name']
+        Name               = $vm_name
+        MemoryStartupBytes = $startup_memory
+        Generation         = 2
+        Path               = "C:\Virtual Machines\$vm_name"
+        SwitchName         = $switch_params['Name']
     }
 
-    New-VM @vm_params
+    $vm = New-VM @vm_params 
+
+    $vhd_params = @{
+        Path           = "C:\Virtual Machines\$vm_name\$vm_name.vhdx"
+        SizeBytes      = 16GB
+        BlockSizeBytes = 1MB
+    }
+
+    New-VHD @vhd_params -Dynamic
+
+    $vm | Set-VHD -Path $vhd_params['Path']
+
+    $vm | Set-VMMemory -DynamicMemoryEnabled $true -MinimumBytes $minimum_memory -MaximumBytes $maximum_memory
+
+    $vm | Set-VMProcessor -Count $CPU_count
 
     $boot_params = @{
-        VMName = $vm_name
-        BootOrder = $(Add-VMDvdDrive -VMName $vm_name -Path $image_path),
-                    $(Get-VMHardDiskDrive -VMName $vm_name)
-            
+        BootOrder = $($vm | Add-VMDvdDrive -Path $image_path),
+                    $($vm | Get-VMHardDiskDrive)
     }
 
-    Set-VMFirmware @boot_params
+    $vm | Set-VMFirmware @boot_params
 
-    Start-VM -Name $vm_name
+    $vm | Start-VM -PassThru | Tee-Object -FilePath "./homelab_init.log"
 }
