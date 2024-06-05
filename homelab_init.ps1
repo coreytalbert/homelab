@@ -17,7 +17,7 @@ $switch_name = Get-VMSwitch -name "vWifi" | select -expand Name
 
 ForEach ($vm_name in $vm_names) {
     # https://learn.microsoft.com/en-us/windows-server/virtualization/hyper-v/best-practices-for-running-linux-on-hyper-v
-    Write-Host "Creating VM $vm_name"
+    Write-Host "Creating VM $vm_name." | Tee-Object -FilePath "./homelab_init.log"
     
     $vm_params = @{
         Name               = $vm_name
@@ -37,18 +37,18 @@ ForEach ($vm_name in $vm_names) {
 
     New-VHD @vhd_params -Dynamic
 
-    $vm | Add-VMHardDiskDrive -Path $vhd_params['Path']
+    Add-VMHardDiskDrive -VM $vm -Path $vhd_params['Path']
 
-    $vm | Set-VMMemory -DynamicMemoryEnabled $true -MinimumBytes $minimum_memory -MaximumBytes $maximum_memory
+    Set-VMMemory -VM $vm -DynamicMemoryEnabled $true -MinimumBytes $minimum_memory -MaximumBytes $maximum_memory
 
-    $vm | Set-VMProcessor -Count $CPU_count
+    Set-VMProcessor -VM $vm -Count $CPU_count
 
     $boot_params = @{
-        BootOrder = $($vm | Add-VMDvdDrive -Path $image_path),
-                    $($vm | Get-VMHardDiskDrive)
+        BootOrder = $(Add-VMDvdDrive -VM $vm -Path $image_path),
+                    $(Get-VMHardDiskDrive)
     }
 
-    $vm | Set-VMFirmware @boot_params
+    Set-VMFirmware -VM $vm @boot_params
 
-    $vm | Start-VM -PassThru | Tee-Object -FilePath "./homelab_init.log"
+    Start-VM -VM $vm -PassThru | Tee-Object -FilePath "./homelab_init.log"
 }
