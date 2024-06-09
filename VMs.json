@@ -1,0 +1,84 @@
+{
+	"VMs": [
+		{
+			"name": "hq0",
+			"path": "C:\\VMs\\hq0",
+			"generation": "2",
+			"CPU-cores": "2",
+			"switch": "vWifi",
+			"dynamic-memory": true,
+			"startup-memory": "2GB",
+			"minimum-memory": "128MB",
+			"maximum-memory": "8GB",
+			"VHDs": [
+				{
+					"path": "C:\\VMs\\hq0\\hq0.vhdx",
+					"size": "32GB",
+					"block-size": "1MB"
+					"dynamic": true
+				}
+			],
+			"DVDs": []
+		},
+		{
+			"name": "zab0",
+			"path": "C:\\VMs\\zab0",
+			"generation": "2",
+			"CPU-cores": "2",
+			"switch": "vWifi",
+			"dynamic-memory": true,
+			"startup-memory": "2GB",
+			"minimum-memory": "128MB",
+			"maximum-memory": "8GB"
+			"VHDs": [
+				{
+					"path": "C:\\VMs\\zab0\\zab0.vhdx",
+					"size": "32GB",
+					"block-size": "1MB"
+					"dynamic": true
+				}
+			],
+			"DVDs": []
+		},
+		{
+			"name": "db0",
+			"path": "C:\\VMs\\db0",
+			"generation": "2",
+			"CPU-cores": "2",
+			"switch": "vWifi",
+			"dynamic-memory": true,
+			"startup-memory": "2GB",
+			"minimum-memory": "128MB",
+			"maximum-memory": "8GB"
+			"VHDs": [
+				{
+					"path": "C:\\VMs\\db0\\db0.vhdx",
+					"size": "32GB",
+					"block-size": "1MB"
+					"dynamic": true
+				}
+			],
+			"DVDs": []
+		},
+		{
+			"name": "web0",
+			"path": "C:\\VMs\\web0",
+			"generation": "2",
+			"CPU-cores": "2",
+			"switch": "vWifi",
+			"dynamic-memory": true,
+			"startup-memory": "2GB",
+			"minimum-memory": "128MB",
+			"maximum-memory": "8GB"
+			"VHDs": [
+				{
+					"path": "C:\\VMs\\web0\\web0.vhdx",
+					"size": "32GB",
+					"block-size": "1MB"
+					"dynamic": true
+				}
+			],
+			"DVDs": []
+		}
+	]
+}
