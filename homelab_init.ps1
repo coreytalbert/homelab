@@ -1,3 +1,10 @@
+. .\logger.ps1
+$loggerArgs = @{
+
+}
+$logger = New-Object -TypeName Logger -ArgumentList @loggerArgs
+
+
 $vm_names = @("web0", "zab0", "db0", "hq0")
 $startup_memory = 2GB
 $minimum_memory = 256MB
@@ -13,7 +20,7 @@ $image_path = "..."
 #}
 #New-VMSwitch @switch_params | Tee-Object -FilePath "./homelab_init.log"
 
-$switch_name = Get-VMSwitch -name "vWifi" | select -expand Name
+$switch_name = Get-VMSwitch -Name "vWifi" | Select-Object -Expand Name
 
 ForEach ($vm_name in $vm_names) {
     # https://learn.microsoft.com/en-us/windows-server/virtualization/hyper-v/best-practices-for-running-linux-on-hyper-v
@@ -45,7 +52,7 @@ ForEach ($vm_name in $vm_names) {
 
     $boot_params = @{
         BootOrder = $(Add-VMDvdDrive -VM $vm -Path $image_path),
-                    $(Get-VMHardDiskDrive)
+        $(Get-VMHardDiskDrive)
     }
 
     Set-VMFirmware -VM $vm @boot_params
