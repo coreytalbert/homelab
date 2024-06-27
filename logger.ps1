@@ -89,20 +89,20 @@ class Logger {
         if ($null -ne $Facility) {
             $this.Facility = $Facility
         }
-        if ([string]::IsNullOrEmpty($AppName)) {
+        if (-not [string]::IsNullOrEmpty($AppName)) {
             $this.AppName = $AppName
         }
-        if ([string]::IsNullOrEmpty($ProcId)) {
+        if (-not [string]::IsNullOrEmpty($ProcId)) {
             $this.ProcId = $ProcId
         }
-        if ([string]::IsNullOrEmpty($MsgId)) {
+        if (-not [string]::IsNullOrEmpty($MsgId)) {
             $this.MsgId = $MsgId
         }
     }
 
     [void] SetLogFile([string]$LogFilePath) {
         if (-not $(Test-Path $LogFilePath)) {
-            New-Item -Type "file" -Path $LogFilePath
+            New-Item -Type 'file' -Path $LogFilePath
         } 
         $this.LogFilePath = $LogFilePath
     }
@@ -110,13 +110,13 @@ class Logger {
     hidden [string] MakeHeader(
         [PriorityLabel]$PriorityLabel
     ) {
-        $HeaderFormatString = "<{0}>{1} {2} {3} {4} {5} "
+        $HeaderFormatString = '<{0}>{1} {2} {3} {4} {5} '
         if ( $this.MsgId ) {
-            $HeaderFormatString += "{6} "
+            $HeaderFormatString += '{6} '
         }
 
         $Priority = $this.Facility * 8 + $PriorityLabel
-        $TimeStamp = "$(Get-Date -Format "HH:mm:ss.fffzzz")"
+        $TimeStamp = "$(Get-Date -Format 'HH:mm:ss.fffzzz')"
 
         $Header = $HeaderFormatString `
             -f $Priority, `
@@ -127,7 +127,7 @@ class Logger {
             $this.ProcId, `
             $this.MsgId 
 
-        return $Header;
+        return $Header
     }
 
     [void] Log(
@@ -160,7 +160,7 @@ class Logger {
     [void] Log(
         [hashtable]$Table
     ) {
-        [PriorityLabel]$PriorityLabel = "INFO"
+        [PriorityLabel]$PriorityLabel = 'INFO'
         [string]$StructuredData = $null
         [string]$Message = $null
 
@@ -177,8 +177,8 @@ class Logger {
 
         if ( $this.Options.HasFlag([LoggerOption]::LOG_FILE) ) {
             Out-File -Encoding ASCII -NoClobber -NoNewline -Append `
-                     -FilePath $this.LogFilePath `
-                     -InputObject $Header, $StructuredData, $Message, "`n" 
+                -FilePath $this.LogFilePath `
+                -InputObject $Header, $StructuredData, $Message, "`n" 
         }
     }
 }
