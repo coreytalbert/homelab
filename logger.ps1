@@ -19,6 +19,7 @@
 
 class Logger {
     [int]           $SyslogVersion = 1
+    [string]        $LogFilePath = $null
     [LoggerOption]  $Options = 0
     [int]           $Facility = 1
     [string]        $HostName = $env:COMPUTERNAME
@@ -29,52 +30,60 @@ class Logger {
     Logger() {}
 
     Logger(
+        [string]$LogFilePath,
         [LoggerOption]$Options
     ) {
-        $this.Init($Options, $null, $null, $null, $null)
+        $this.Init($LogFilePath, $Options, $null, $null, $null, $null)
     }
 
     Logger(
+        [string]$LogFilePath,
         [LoggerOption]$Options,
         [int]$Facility
     ) {
-        $this.Init($Options, $Facility, $null, $null, $null)
+        $this.Init($LogFilePath, $Options, $Facility, $null, $null, $null)
     }
 
     Logger(
+        [string]$LogFilePath,
         [LoggerOption]$Options,
         [int]$Facility,
         [string]$AppName
     ) {
-        $this.Init($Options, $Facility, $AppName, $null, $null)
+        $this.Init($LogFilePath, $Options, $Facility, $AppName, $null, $null)
     }
 
     Logger(
+        [string]$LogFilePath,
         [LoggerOption]$Options,
         [int]$Facility,
         [string]$AppName,
         [string]$ProcId
     ) {
-        $this.Init($Options, $Facility, $AppName, $ProcId, $null)
+        $this.Init($LogFilePath, $Options, $Facility, $AppName, $ProcId, $null)
     }
 
     Logger(
+        [string]$LogFilePath,
         [LoggerOption]$Options,
         [int]$Facility,
         [string]$AppName,
         [string]$ProcId,
         [string]$MsgId
     ) {
-        $this.Init($Options, $Facility, $AppName, $ProcId, $MsgId)
+        $this.Init($LogFilePath, $Options, $Facility, $AppName, $ProcId, $MsgId)
     }
 
     hidden [void] Init(
+        [string]$LogFilePath,
         [LoggerOption]$Options,
         [int]$Facility,
         [string]$AppName,
         [string]$ProcId,
         [string]$MsgId
     ) {
+        $this.SetLogFile($LogFilePath)
+
         $this.Options = $this.Options -bor $Options
 
         if ($null -ne $Facility) {
@@ -89,6 +98,13 @@ class Logger {
         if ([string]::IsNullOrEmpty($MsgId)) {
             $this.MsgId = $MsgId
         }
+    }
+
+    [void] SetLogFile([string]$LogFilePath) {
+        if (-not $(Test-Path $LogFilePath)) {
+            New-Item -Type "file" -Path $LogFilePath
+        } 
+        $this.LogFilePath = $LogFilePath
     }
 
     hidden [string] MakeHeader(
@@ -160,7 +176,9 @@ class Logger {
         }
 
         if ( $this.Options.HasFlag([LoggerOption]::LOG_FILE) ) {
-            Out-File -Encoding ASCII -NoClobber -NoNewline -Append -FilePath .\log.txt -InputObject $Header, $Message, "`n" 
+            Out-File -Encoding ASCII -NoClobber -NoNewline -Append `
+                     -FilePath $this.LogFilePath `
+                     -InputObject $Header, $StructuredData, $Message, "`n" 
         }
     }
 }
