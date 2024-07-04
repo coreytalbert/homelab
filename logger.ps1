@@ -101,9 +101,7 @@ class Logger {
     }
 
     [void] SetLogFile([string]$LogFilePath) {
-        if (-not $(Test-Path $LogFilePath)) {
-            New-Item -Type 'file' -Path $LogFilePath
-        } 
+
         $this.LogFilePath = $LogFilePath
     }
 
