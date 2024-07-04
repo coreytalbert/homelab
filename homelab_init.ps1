@@ -1,8 +1,10 @@
 . .\logger.ps1
-$loggerArgs = @{
-
+$logger = [Logger]@{
+    LogFilePath = "logs/homelab_init.log"
+    Options = [LoggerOption]::LOG_FILE + [LoggerOption]::LOG_CONS
+    Facility = 1
+    MsgId = "HOMELAB"
 }
-$logger = New-Object -TypeName Logger -ArgumentList @loggerArgs
 
 
 $vm_names = @("web0", "zab0", "db0", "hq0")
@@ -14,17 +16,17 @@ $CPU_count = 2
 $image_path = "..."
 
 # https://learn.microsoft.com/en-us/windows-server/virtualization/hyper-v/get-started/create-a-virtual-switch-for-hyper-v-virtual-machines?tabs=powershell
-#$switch_params = @{
+# $switch_params = @{
 #    Name           = "switch0"
 #    NetAdapterName = $(Get-NetAdapter | Where-Object Name -Like "*Wi-Fi*")
-#}
-#New-VMSwitch @switch_params | Tee-Object -FilePath "./homelab_init.log"
+# }
+# New-VMSwitch @switch_params | Tee-Object -FilePath "./homelab_init.log"
 
 $switch_name = Get-VMSwitch -Name "vWifi" | Select-Object -Expand Name
 
 ForEach ($vm_name in $vm_names) {
     # https://learn.microsoft.com/en-us/windows-server/virtualization/hyper-v/best-practices-for-running-linux-on-hyper-v
-    Write-Host "Creating VM $vm_name." | Tee-Object -FilePath "./homelab_init.log"
+    $logger.Log([PriorityLabel]::NOTICE, "Creating VM $vm_name.")
     
     $vm_params = @{
         Name               = $vm_name
