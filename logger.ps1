@@ -116,7 +116,7 @@ class Logger {
         }
 
         $Priority = $this.Facility * 8 + $PriorityLabel
-        $TimeStamp = "$(Get-Date -Format 'HH:mm:ss.fffzzz')"
+        $TimeStamp = "$(Get-Date -Format 'yyyy-dd-MMTHH:mm:ss.fffzzz')"
 
         $Header = $HeaderFormatString `
             -f $Priority, `
